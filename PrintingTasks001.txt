@@ -1,0 +1,344 @@
+Sub MakeStickers()
+'
+' Macro1 Macro
+'
+
+'
+    Sheets("Sheet1").Select
+    Cells.Find(What:="Work Item Type", After:=ActiveCell, LookIn:=xlFormulas _
+        , LookAt:=xlPart, SearchOrder:=xlByRows, SearchDirection:=xlNext, _
+        MatchCase:=False, SearchFormat:=False).Activate
+    Dim ColumnWorkItemType As Integer
+    ColumnWorkItemType = ActiveCell.Column
+    Range("A1").Select
+    Cells.Find(What:="Remaining Work", After:=ActiveCell, LookIn:=xlFormulas _
+        , LookAt:=xlPart, SearchOrder:=xlByRows, SearchDirection:=xlNext, _
+        MatchCase:=False, SearchFormat:=False).Activate
+    ColumnRemainingWork = ActiveCell.Column
+    Range("A1").Select
+    Cells.Find(What:="Backlog Priority", After:=ActiveCell, LookIn:= _
+        xlFormulas, LookAt:=xlPart, SearchOrder:=xlByRows, SearchDirection:= _
+        xlNext, MatchCase:=False, SearchFormat:=False).Activate
+    ColumnBacklogPriority = ActiveCell.Column
+    Range("A1").Select
+    Cells.Find(What:="Title 2", After:=ActiveCell, LookIn:=xlFormulas, _
+        LookAt:=xlPart, SearchOrder:=xlByRows, SearchDirection:=xlNext, _
+        MatchCase:=False, SearchFormat:=False).Activate
+    ColumnTitle = ActiveCell.Column
+    ColumnID = 1
+    'Sheets.Add After:=Sheets(Sheets.Count)
+    'Sheets("Sheet2").Select
+    'Sheets("Sheet2").Name = "Stickers"
+    Sheets("Sheet2").Select
+    SetMargins
+    SetColumnsWidth
+    Dim i As Integer
+    Dim CartNumber As Integer
+    CartNumber = 1
+    For i = 4 To 100
+      'Do something here
+      Sheets("Sheet1").Select
+      If Range(ColumnLetter(ColumnWorkItemType) & i).Value = "Task" Then
+        Dim Row As Integer
+        Dim Column As Integer
+        Column = 0
+        If (CartNumber - 1) Mod 2 = 1 Then
+          Column = 6
+        End If
+        Row = ((CartNumber - 1) \ 2) * 8
+        Sheets("Sheet2").Select
+        FormatCart Row, Column
+        CartNumber = CartNumber + 1
+        FillCart Row, Column, i
+      End If
+    Next i
+End Sub
+
+Function ColumnLetter(ColumnNumber As Integer) As String
+  If ColumnNumber > 26 Then
+
+    ' 1st character:  Subtract 1 to map the characters to 0-25,
+    '                 but you don't have to remap back to 1-26
+    '                 after the 'Int' operation since columns
+    '                 1-26 have no prefix letter
+
+    ' 2nd character:  Subtract 1 to map the characters to 0-25,
+    '                 but then must remap back to 1-26 after
+    '                 the 'Mod' operation by adding 1 back in
+    '                 (included in the '65')
+
+    ColumnLetter = Chr(Int((ColumnNumber - 1) / 26) + 64) & _
+                   Chr(((ColumnNumber - 1) Mod 26) + 65)
+  Else
+    ' Columns A-Z
+    ColumnLetter = Chr(ColumnNumber + 64)
+  End If
+End Function
+
+Function SetMargins()
+        Application.PrintCommunication = False
+    With ActiveSheet.PageSetup
+        .PrintTitleRows = ""
+        .PrintTitleColumns = ""
+    End With
+    Application.PrintCommunication = True
+    ActiveSheet.PageSetup.PrintArea = ""
+    Application.PrintCommunication = False
+    With ActiveSheet.PageSetup
+        .LeftHeader = ""
+        .CenterHeader = ""
+        .RightHeader = ""
+        .LeftFooter = ""
+        .CenterFooter = ""
+        .RightFooter = ""
+        .LeftMargin = Application.InchesToPoints(0.25)
+        .RightMargin = Application.InchesToPoints(0.25)
+        .TopMargin = Application.InchesToPoints(0.75)
+        .BottomMargin = Application.InchesToPoints(1.17)
+        .HeaderMargin = Application.InchesToPoints(0.3)
+        .FooterMargin = Application.InchesToPoints(0.3)
+        .PrintHeadings = False
+        .PrintGridlines = False
+        .PrintComments = xlPrintNoComments
+        .PrintQuality = 600
+        .CenterHorizontally = False
+        .CenterVertically = False
+        .Orientation = xlPortrait
+        .Draft = False
+        .PaperSize = xlPaperA4
+        .FirstPageNumber = xlAutomatic
+        .Order = xlDownThenOver
+        .BlackAndWhite = False
+        .Zoom = 100
+        .PrintErrors = xlPrintErrorsDisplayed
+        .OddAndEvenPagesHeaderFooter = False
+        .DifferentFirstPageHeaderFooter = False
+        .ScaleWithDocHeaderFooter = True
+        .AlignMarginsHeaderFooter = True
+        .EvenPage.LeftHeader.Text = ""
+        .EvenPage.CenterHeader.Text = ""
+        .EvenPage.RightHeader.Text = ""
+        .EvenPage.LeftFooter.Text = ""
+        .EvenPage.CenterFooter.Text = ""
+        .EvenPage.RightFooter.Text = ""
+        .FirstPage.LeftHeader.Text = ""
+        .FirstPage.CenterHeader.Text = ""
+        .FirstPage.RightHeader.Text = ""
+        .FirstPage.LeftFooter.Text = ""
+        .FirstPage.CenterFooter.Text = ""
+        .FirstPage.RightFooter.Text = ""
+    End With
+    Application.PrintCommunication = True
+    ActiveWindow.SmallScroll Down:=18
+End Function
+
+Function SetColumnsWidth()
+    Columns("A:L").Select
+    Selection.ColumnWidth = 7.14
+End Function
+
+Function FormatCart(Row As Integer, Column As Integer)
+    Range(ColumnLetter(Column + 1) & 1 + Row & ":" & ColumnLetter(Column + 2) & 1 + Row).Select
+    With Selection
+        .HorizontalAlignment = xlRight
+        .VerticalAlignment = xlBottom
+        .WrapText = False
+        .Orientation = 0
+        .AddIndent = False
+        .IndentLevel = 0
+        .ShrinkToFit = False
+        .ReadingOrder = xlContext
+        .MergeCells = True
+    End With
+    ActiveCell.FormulaR1C1 = "Priority"
+    'Range("A2:B2").Select
+    Range(ColumnLetter(Column + 1) & 2 + Row & ":" & ColumnLetter(Column + 2) & 2 + Row).Select
+    With Selection
+        .HorizontalAlignment = xlRight
+        .VerticalAlignment = xlBottom
+        .WrapText = False
+        .Orientation = 0
+        .AddIndent = False
+        .IndentLevel = 0
+        .ShrinkToFit = False
+        .ReadingOrder = xlContext
+        .MergeCells = True
+    End With
+    ActiveCell.FormulaR1C1 = "Remaining Work"
+    'Range("B4:E6").Select
+    Range(ColumnLetter(Column + 2) & 4 + Row & ":" & ColumnLetter(Column + 5) & 7 + Row).Select
+    With Selection
+        .HorizontalAlignment = xlCenter
+        .VerticalAlignment = xlCenter
+        .WrapText = True
+        .Orientation = 0
+        .AddIndent = False
+        .IndentLevel = 0
+        .ShrinkToFit = False
+        .ReadingOrder = xlContext
+        .MergeCells = True
+    End With
+    With Selection.Font
+        .Name = "Calibri"
+        .FontStyle = "Regular"
+        .Size = 16
+        .Strikethrough = False
+        .Superscript = False
+        .Subscript = False
+        .OutlineFont = False
+        .Shadow = False
+        .Underline = xlUnderlineStyleNone
+        .ThemeColor = xlThemeColorLight1
+        .TintAndShade = 0
+        .ThemeFont = xlThemeFontMinor
+    End With
+    'Range("E1:F2").Select
+    Range(ColumnLetter(Column + 5) & 1 + Row & ":" & ColumnLetter(Column + 6) & 2 + Row).Select
+    With Selection
+        .HorizontalAlignment = xlCenter
+        .VerticalAlignment = xlCenter
+        .WrapText = False
+        .Orientation = 0
+        .AddIndent = False
+        .IndentLevel = 0
+        .ShrinkToFit = False
+        .ReadingOrder = xlContext
+        .MergeCells = True
+    End With
+    Selection.Borders(xlDiagonalDown).LineStyle = xlNone
+    Selection.Borders(xlDiagonalUp).LineStyle = xlNone
+    With Selection.Borders(xlEdgeLeft)
+        .LineStyle = xlContinuous
+        .ColorIndex = xlAutomatic
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlEdgeTop)
+        .LineStyle = xlContinuous
+        .ColorIndex = xlAutomatic
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlEdgeBottom)
+        .LineStyle = xlContinuous
+        .ColorIndex = xlAutomatic
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlEdgeRight)
+        .LineStyle = xlContinuous
+        .ColorIndex = xlAutomatic
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With Selection.Font
+        .Name = "Calibri"
+        .FontStyle = "Regular"
+        .Size = 16
+        .Strikethrough = False
+        .Superscript = False
+        .Subscript = False
+        .OutlineFont = False
+        .Shadow = False
+        .Underline = xlUnderlineStyleNone
+        .ThemeColor = xlThemeColorLight1
+        .TintAndShade = 0
+        .ThemeFont = xlThemeFontMinor
+    End With
+    
+    
+    Selection.Borders(xlInsideVertical).LineStyle = xlNone
+    Selection.Borders(xlInsideHorizontal).LineStyle = xlNone
+    'Range("A1:F8").Select
+    Range(ColumnLetter(Column + 1) & 1 + Row & ":" & ColumnLetter(Column + 6) & 8 + Row).Select
+    Selection.Borders(xlDiagonalDown).LineStyle = xlNone
+    Selection.Borders(xlDiagonalUp).LineStyle = xlNone
+    Selection.Borders(xlEdgeLeft).LineStyle = xlNone
+    With Selection.Borders(xlEdgeBottom)
+        .LineStyle = xlDash
+        .ColorIndex = xlAutomatic
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    
+    If Column = 6 Then
+        'Range("A1:F8").Select
+        Range(ColumnLetter(Column + 1) & 1 + Row & ":" & ColumnLetter(Column + 6) & 8 + Row).Select
+        Selection.Borders(xlDiagonalDown).LineStyle = xlNone
+        Selection.Borders(xlDiagonalUp).LineStyle = xlNone
+        Selection.Borders(xlEdgeLeft).LineStyle = xlNone
+        With Selection.Borders(xlEdgeBottom)
+            .LineStyle = xlDash
+            .ColorIndex = xlAutomatic
+            .TintAndShade = 0
+            .Weight = xlThin
+        End With
+        With Selection.Borders(xlEdgeLeft)
+            .LineStyle = xlDash
+            .ColorIndex = xlAutomatic
+            .TintAndShade = 0
+            .Weight = xlThin
+        End With
+    End If
+End Function
+Function FillCart(Row As Integer, Column As Integer, CartLine As Integer)
+    Sheets("Sheet1").Select
+    Range("A1").Select
+    Dim ColumnRemainingWork As Integer
+    Cells.Find(What:="Remaining Work", After:=ActiveCell, LookIn:=xlFormulas _
+        , LookAt:=xlPart, SearchOrder:=xlByRows, SearchDirection:=xlNext, _
+        MatchCase:=False, SearchFormat:=False).Activate
+    ColumnRemainingWork = ActiveCell.Column
+    Dim ColumnBacklogPriority As Integer
+    Range("A1").Select
+    Cells.Find(What:="Backlog Priority", After:=ActiveCell, LookIn:= _
+        xlFormulas, LookAt:=xlPart, SearchOrder:=xlByRows, SearchDirection:= _
+        xlNext, MatchCase:=False, SearchFormat:=False).Activate
+    ColumnBacklogPriority = ActiveCell.Column
+    Range("A1").Select
+    Dim ColumnTitle As Integer
+    Cells.Find(What:="Title 2", After:=ActiveCell, LookIn:=xlFormulas, _
+        LookAt:=xlPart, SearchOrder:=xlByRows, SearchDirection:=xlNext, _
+        MatchCase:=False, SearchFormat:=False).Activate
+    ColumnTitle = ActiveCell.Column
+    Dim ColumnID As Integer
+    ColumnID = 1
+    Sheets("Sheet1").Select
+    Range(ColumnLetter(ColumnID) & CartLine).Select
+    Selection.Copy
+    Sheets("Sheet2").Select
+    Range("E1:F2").Select
+    Range(ColumnLetter(Column + 5) & 1 + Row & ":" & ColumnLetter(Column + 6) & 2 + Row).Select
+    ActiveSheet.Paste
+    Sheets("Sheet1").Select
+    Range(ColumnLetter(ColumnTitle) & CartLine).Select
+    Application.CutCopyMode = False
+    Selection.Copy
+    Sheets("Sheet2").Select
+    'Range("B4:E6").Select
+    Range(ColumnLetter(Column + 2) & 4 + Row & ":" & ColumnLetter(Column + 5) & 7 + Row).Select
+    ActiveSheet.Paste
+    Sheets("Sheet1").Select
+    Range(ColumnLetter(ColumnBacklogPriority) & CartLine).Select
+    Application.CutCopyMode = False
+    Selection.Copy
+    Sheets("Sheet2").Select
+    'Range("C1").Select
+    Range(ColumnLetter(Column + 3) & 1 + Row).Select
+    ActiveSheet.Paste
+    Sheets("Sheet1").Select
+    Range(ColumnLetter(ColumnRemainingWork) & CartLine).Select
+    Application.CutCopyMode = False
+    Selection.Copy
+    Sheets("Sheet2").Select
+    'Range("C2").Select
+    Range(ColumnLetter(Column + 3) & 2 + Row).Select
+    ActiveSheet.Paste
+    Range(ColumnLetter(Column + 3) & 1 + Row).Select
+    Selection.Style = "Normal"
+    Range(ColumnLetter(Column + 3) & 2 + Row).Select
+    Selection.Style = "Normal"
+End Function
+
+
+

@@ -1,0 +1,4 @@
+Printing stickers for whiteboard.docx - description how to use VB Excel macro
+PrintingTasks001.txt - initial version for printing stickers with task names
+PrintingTasksWithPBI002.txt - version for printing stickers with task and PBI names 
+PrintingTasksAndBugs003.txt - version for printing stickers for tasks and bugs
